@@ -38,6 +38,8 @@ PY
 command -v update-mime-database >/dev/null && update-mime-database "$data_home/mime" || true
 command -v update-desktop-database >/dev/null && update-desktop-database "$data_home/applications" 2>/dev/null || true
 rm -f "$cache_home/thumbnails/fail/gnome-thumbnail-factory/"*.png
-printf 'Installed STL thumbnails. Restart Files (Nautilus) or log out and back in.\n'
-printf 'Cleared cached thumbnail failures. Reopen the folder to regenerate STL previews.\n'
-printf 'Nautilus must be restarted to reload the thumbnailer.\n'
+printf 'Installed STL preview support:\n'
+printf '  - Installed the renderer and registered the thumbnailer and STL file type.\n'
+printf '  - Added the Nautilus transparent-thumbnail style.\n'
+printf '  - Cleared failed-thumbnail cache entries so previews can be regenerated.\n'
+printf 'Restart Nautilus to load the changes.\n'

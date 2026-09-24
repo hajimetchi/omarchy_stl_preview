@@ -21,4 +21,7 @@ if path.exists():
 PY
 command -v update-mime-database >/dev/null && update-mime-database "$data_home/mime" || true
 rm -f "$cache_home/thumbnails/fail/gnome-thumbnail-factory/"*.png
-printf 'Removed STL thumbnail integration. Restart Files (Nautilus) to apply.\n'
+printf 'Removed STL preview support:\n'
+printf '  - Removed the renderer, thumbnailer, and STL file-type registration.\n'
+printf '  - Removed this project’s Nautilus thumbnail style and cleared failed-thumbnail cache entries.\n'
+printf 'Restart Nautilus to apply the changes.\n'

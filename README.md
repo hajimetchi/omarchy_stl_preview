@@ -1,6 +1,6 @@
 # STL Preview for Files
 
-STL Preview adds image thumbnails for `.stl` 3D model files in GNOME Files (Nautilus), including the Files setup used by Omarchy Linux. It draws a shaded, isometric-style preview on a transparent background, so you can recognize models while browsing folders.
+STL Preview adds shaded, transparent-background thumbnails for `.stl` models in GNOME Files (Nautilus), the file manager used by Omarchy. Made for Omarchy, it was tested on Omarchy 4.0.4-1 (stable).
 
 The renderer uses Python's standard library only. It does not need pip packages, a 3D application, or an internet connection. It supports both binary and ASCII STL files. The thumbnails are for browsing and are not a substitute for a 3D viewer when checking a model's shape or dimensions.
 
@@ -9,12 +9,6 @@ The renderer uses Python's standard library only. It does not need pip packages,
 <!-- Add a screenshot of GNOME Files showing STL model thumbnails here. -->
 
 _Screenshot coming soon._
-
-## Requirements
-
-- Linux with GNOME Files (Nautilus)
-- Python 3
-- Administrator access to install the thumbnail renderer in `/usr/local/bin`
 
 ## Install
 
