@@ -8,6 +8,8 @@ The renderer uses Python's standard library only. It does not need pip packages,
 
 ![.stl files preview screenshot](./screenshot.png)
 
+Model: [Bag Clip Crocodile with Lock (Print in Place)](https://www.printables.com/model/1822754-bag-clip-crocodile-with-lock-print-in-place/).
+
 ## Install
 
 1. Download this project: select **Code → Download ZIP** on GitHub and extract the ZIP, or clone the repository:
