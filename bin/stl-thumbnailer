@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+"""Render an STL mesh as a transparent PNG thumbnail (no third-party modules)."""
+import math
+import re
+import struct
+import sys
+import zlib
+
+
+def triangles_from_stl(path):
+    data = open(path, "rb").read()
+    if len(data) >= 84:
+        count = struct.unpack_from("<I", data, 80)[0]
+        if 84 + count * 50 == len(data):
+            for i in range(count):
+                vals = struct.unpack_from("<12fH", data, 84 + i * 50)
+                yield (vals[3:6], vals[6:9], vals[9:12])
+            return
+    text = data.decode("ascii", errors="ignore")
+    verts = [tuple(map(float, m)) for m in re.findall(
+        r"\bvertex\s+([-+\d.eE]+)\s+([-+\d.eE]+)\s+([-+\d.eE]+)", text, re.I)]
+    if not verts or len(verts) % 3:
+        raise ValueError("Not a readable STL mesh")
+    for i in range(0, len(verts), 3):
+        yield tuple(verts[i:i + 3])
+
+
+def png(path, w, h, rgba):
+    def chunk(kind, data):
+        return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data) & 0xffffffff)
+    raw = b"".join(b"\0" + bytes(rgba[y * w * 4:(y + 1) * w * 4]) for y in range(h))
+    with open(path, "wb") as f:
+        f.write(b"\x89PNG\r\n\x1a\n")
+        f.write(chunk(b"IHDR", struct.pack(">2I5B", w, h, 8, 6, 0, 0, 0)))
+        f.write(chunk(b"IDAT", zlib.compress(raw, 8)))
+        f.write(chunk(b"IEND", b""))
+
+
+def main():
+    src, dst = sys.argv[1], sys.argv[2]
+    size = max(64, min(int(sys.argv[3]) if len(sys.argv) > 3 else 256, 1024))
+    tris = list(triangles_from_stl(src))
+    if not tris:
+        raise ValueError("STL contains no triangles")
+    verts = [v for t in tris for v in t]
+    lo = [min(v[i] for v in verts) for i in range(3)]
+    hi = [max(v[i] for v in verts) for i in range(3)]
+    center = [(lo[i] + hi[i]) / 2 for i in range(3)]
+    # Isometric-like view: show X, Y and Z without relying on external renderers.
+    az, el = math.radians(42), math.radians(28)
+    ca, sa, ce, se = math.cos(az), math.sin(az), math.cos(el), math.sin(el)
+    projected = []
+    for tri in tris:
+        pts = []
+        for v in tri:
+            x, y, z = (v[i] - center[i] for i in range(3))
+            pts.append((ca*x-sa*y, se*(sa*x+ca*y)+ce*z, -ce*(sa*x+ca*y)+se*z))
+        projected.append(pts)
+    flat = [p for t in projected for p in t]
+    xmin, xmax = min(p[0] for p in flat), max(p[0] for p in flat)
+    ymin, ymax = min(p[1] for p in flat), max(p[1] for p in flat)
+    span = max(xmax-xmin, ymax-ymin, 1e-12)
+    scale = (size * .82) / span
+    ox, oy = size / 2 - (xmin+xmax)*scale/2, size / 2 + (ymin+ymax)*scale/2
+    image = bytearray(size * size * 4)
+    depth = [float("-inf")] * (size * size)
+    light = (0.35, -0.45, 0.82)
+    ll = math.sqrt(sum(x*x for x in light)); light = tuple(x/ll for x in light)
+    for tri in projected:
+        p = [(ox+x*scale, oy-y*scale, z) for x,y,z in tri]
+        (x1,y1,z1),(x2,y2,z2),(x3,y3,z3) = p
+        area = (x2-x1)*(y3-y1)-(y2-y1)*(x3-x1)
+        if abs(area) < 1e-8: continue
+        minx=max(0,int(min(x1,x2,x3))); maxx=min(size-1,int(max(x1,x2,x3))+1)
+        miny=max(0,int(min(y1,y2,y3))); maxy=min(size-1,int(max(y1,y2,y3))+1)
+        # Lighting from the original 3D face normal, with two-sided shading.
+        a,b,c=tri
+        u=[b[i]-a[i] for i in range(3)]; v=[c[i]-a[i] for i in range(3)]
+        n=(u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0])
+        nl=math.sqrt(sum(q*q for q in n)) or 1
+        diffuse=abs(sum(n[i]*light[i] for i in range(3))/nl)
+        shade=int(105 + 130*diffuse)
+        for py in range(miny,maxy+1):
+            for px in range(minx,maxx+1):
+                xx,yy=px+.5,py+.5
+                w1=((x2-xx)*(y3-yy)-(y2-yy)*(x3-xx))/area
+                w2=((x3-xx)*(y1-yy)-(y3-yy)*(x1-xx))/area
+                w3=1-w1-w2
+                if min(w1,w2,w3) >= -1e-8:
+                    idx=py*size+px; z=w1*z1+w2*z2+w3*z3
+                    if z > depth[idx]:
+                        depth[idx]=z; j=idx*4
+                        image[j:j+4]=bytes((shade, int(shade*.72), int(shade*.48), 255))
+    png(dst,size,size,image)
+
+
+if __name__ == "__main__":
+    try: main()
+    except Exception as e:
+        print("stl-thumbnailer:", e, file=sys.stderr)
+        sys.exit(1)
