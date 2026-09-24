@@ -6,9 +6,7 @@ The renderer uses Python's standard library only. It does not need pip packages,
 
 ## Screenshot
 
-<!-- Add a screenshot of GNOME Files showing STL model thumbnails here. -->
-
-_Screenshot coming soon._
+![.stl files preview screenshot](./screenshot.png)
 
 ## Install
 
