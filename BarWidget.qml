@@ -70,7 +70,7 @@ BarWidget {
     Image {
       id: icon
       anchors.centerIn: parent
-      width: Style.space(19.5)
+      width: Style.space(20)
       height: width
       source: Qt.resolvedUrl("icons/isometric-grid.svg")
       sourceSize: Qt.size(64, 64)
