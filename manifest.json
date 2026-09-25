@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "author": "hajimetchi",
   "license": "MIT",
-  "description": "Install and manage transparent STL thumbnails for GNOME Files on Omarchy.",
+  "description": "Transparent STL thumbnails for GNOME Files on Omarchy.",
   "kinds": ["bar-widget"],
   "entryPoints": {
     "barWidget": "BarWidget.qml"

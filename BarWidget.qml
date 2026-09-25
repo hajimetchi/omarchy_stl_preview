@@ -72,7 +72,7 @@ BarWidget {
       anchors.centerIn: parent
       width: Style.space(17)
       height: width
-      source: Qt.resolvedUrl("icons/xyz.svg")
+      source: Qt.resolvedUrl("icons/isometric-grid.svg")
       sourceSize: Qt.size(64, 64)
       layer.enabled: true
       layer.effect: MultiEffect {
