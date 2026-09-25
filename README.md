@@ -4,7 +4,7 @@ STL Preview adds shaded, transparent-background thumbnails for `.stl` models in 
 
 The renderer uses Python's standard library only. It does not need pip packages, a 3D application, or an internet connection. It supports both binary and ASCII STL files. The thumbnails are for browsing and are not a substitute for a 3D viewer when checking a model's shape or dimensions.
 
-The installer adds a small GTK style rule that makes Nautilus thumbnail backgrounds transparent. Nautilus does not expose an STL-only GTK selector, so the background-only rule also affects other thumbnails; it leaves their borders, spacing, and layout unchanged.
+The installer adds a small GTK style rule that makes Nautilus thumbnail backgrounds transparent and removes their borders. Nautilus does not expose an STL-only GTK selector, so this affects other thumbnails too; it leaves their spacing and layout unchanged.
 
 ## Screenshot
 
@@ -37,7 +37,7 @@ Use **Remove STL previews** in the widget before removing the plugin with `omarc
 | File | Purpose |
 | --- | --- |
 | `manifest.json`, `BarWidget.qml`, `Panel.qml`, `ActionButton.qml`, `icons/xyz.svg` | Declare and implement the Quattro widget, XYZ icon, and install/remove panel. |
-| `install.sh` | Installs the renderer, registers the thumbnailer and STL file type for your account, and makes Nautilus thumbnail backgrounds transparent. Launched by the widget. |
+| `install.sh` | Installs the renderer, registers the thumbnailer and STL file type for your account, and removes Nautilus thumbnail backgrounds and borders. Launched by the widget. |
 | `uninstall.sh` | Removes the renderer and registrations, then removes only the style block added by this project. Launched by the widget. |
 | `bin/stl-thumbnailer` | Python program that reads an STL mesh and renders a transparent PNG thumbnail. |
 | `share/thumbnailers/stl-preview.thumbnailer` | Tells GNOME which command to run to make thumbnails for STL files. |
