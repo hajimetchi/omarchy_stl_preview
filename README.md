@@ -1,6 +1,6 @@
 # STL Preview for Omarchy
 
-Adds transparent STL model thumbnails to GNOME Files on Omarchy, with install and removal controls in a Quattro bar widget. The widget uses a compact isometric grid icon.
+Adds transparent STL model thumbnails to GNOME Files on Omarchy, with install and removal controls in a Quattro bar widget. The widget uses a compact 2×2 isometric diamond grid icon.
 
 The thumbnails are for browsing, not a substitute for a 3D viewer when checking a model's shape or dimensions.
 
@@ -20,7 +20,7 @@ Install the plugin with:
 omarchy plugin add https://github.com/hajimetchi/omarchy_stl_preview.git --enable
 ```
 
-The isometric grid icon appears in the bar's right section. Hover to see its **Manage STL previews** tooltip, then click it and choose **Install STL previews**. This opens an interactive terminal and runs `install.sh`; the script asks for your administrator password when it installs the renderer under `/usr/local/bin`. The plugin does not run the installer automatically.
+The 2×2 isometric diamond icon appears in the bar's right section. Hover to see its **Manage STL previews** tooltip, then click it and choose **Install STL previews**. This opens an interactive terminal and runs `install.sh`; the script asks for your administrator password when it installs the renderer under `/usr/local/bin`. The plugin does not run the installer automatically.
 
 Restart GNOME Files (close and reopen it, or log out and back in). Browse to a folder containing `.stl` files and use an icon or grid view. If thumbnails are disabled in Files, enable them in Files preferences. The first preview may take a moment to appear.
 
@@ -32,7 +32,7 @@ Use **Remove STL previews** in the widget before removing the plugin with `omarc
 
 | File | Purpose |
 | --- | --- |
-| `manifest.json`, `BarWidget.qml`, `Panel.qml`, `ActionButton.qml`, `icons/isometric-grid.svg` | Declare and implement the Quattro widget, isometric grid icon, and install/remove panel. |
+| `manifest.json`, `BarWidget.qml`, `Panel.qml`, `ActionButton.qml`, `icons/isometric-grid.svg` | Declare and implement the Quattro widget, 2×2 isometric grid icon, and install/remove panel. |
 | `install.sh` | Installs the renderer, registers the thumbnailer and STL file type for your account, and applies the Nautilus thumbnail style. Launched by the widget. |
 | `uninstall.sh` | Removes the renderer and registrations, then removes only the style block added by this project. Launched by the widget. |
 | `bin/stl-thumbnailer` | Python program that reads an STL mesh and renders a transparent PNG thumbnail. |
