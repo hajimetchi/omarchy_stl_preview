@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.hajimetchi.stl-preview",
+  "name": "STL Preview",
+  "version": "1.0.0",
+  "author": "hajimetchi",
+  "license": "MIT",
+  "description": "Install and manage transparent STL thumbnails for GNOME Files on Omarchy.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "STL Preview",
+    "category": "Utility",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

@@ -1,6 +1,6 @@
-# STL Preview for Files
+# STL Preview for Omarchy
 
-STL Preview adds shaded, transparent-background thumbnails for `.stl` models in GNOME Files (Nautilus), the file manager used by Omarchy. Made for Omarchy, it was tested on Omarchy 4.0.4-1 (stable).
+STL Preview adds shaded, transparent-background thumbnails for `.stl` models in GNOME Files (Nautilus), the file manager used by Omarchy. Its Quattro bar widget provides explicit install and removal actions.
 
 The renderer uses Python's standard library only. It does not need pip packages, a 3D application, or an internet connection. It supports both binary and ASCII STL files. The thumbnails are for browsing and are not a substitute for a 3D viewer when checking a model's shape or dimensions.
 
@@ -10,43 +10,33 @@ The renderer uses Python's standard library only. It does not need pip packages,
 
 Model: [Bag Clip Crocodile with Lock (Print in Place)](https://www.printables.com/model/1822754-bag-clip-crocodile-with-lock-print-in-place/).
 
-## Install
+## Install as an Omarchy Quattro plugin
 
-1. Download this project: select **Code → Download ZIP** on GitHub and extract the ZIP, or clone the repository:
-
-   ```bash
-   git clone https://github.com/hajimetchi/omarchy_stl_preview.git
-   cd omarchy_stl_preview
-   ```
-
-2. Open a terminal in the extracted project folder and run:
-
-   ```bash
-   ./install.sh
-   ```
-
-3. Enter your administrator password when prompted. The installer puts the thumbnail renderer in `/usr/local/bin` so GNOME's thumbnail sandbox can run it. The thumbnailer and STL file-type registration are installed in your user data folder; no administrator access is needed for those files.
-
-4. Restart GNOME Files (close and reopen it, or log out and back in). Browse to a folder containing `.stl` files and use an icon or grid view. If thumbnails are disabled in Files, enable them in Files preferences.
-
-The installer clears failed-thumbnail cache entries so Files can retry generating previews. The first preview may take a moment to appear.
-
-## Uninstall
-
-In a terminal opened in the project folder, run:
+Install the plugin with:
 
 ```bash
-./uninstall.sh
+omarchy plugin add https://github.com/hajimetchi/omarchy_stl_preview.git --enable
 ```
 
-Enter your administrator password when prompted, then restart GNOME Files. The uninstaller removes this thumbnail integration and its Nautilus-only transparent-thumbnail style. Other GTK style rules are preserved.
+The **STL** widget appears in the bar's right section. Click it and choose **Install STL previews**. This opens an interactive terminal and runs `install.sh`; the script asks for your administrator password when it installs the renderer under `/usr/local/bin`. The plugin does not run the installer automatically.
+
+Restart GNOME Files (close and reopen it, or log out and back in). Browse to a folder containing `.stl` files and use an icon or grid view. If thumbnails are disabled in Files, enable them in Files preferences. The first preview may take a moment to appear.
+
+## Requirements
+
+The plugin requires Omarchy Quattro, `omarchy-launch-terminal`, `xdg-terminal-exec`, Bash, Python 3, GNOME Files, and `sudo`. The renderer itself uses only Python's standard library and does not need internet access. Optional desktop database utilities are used when present.
+
+## Remove
+
+Use **Remove STL previews** in the widget before removing the plugin with `omarchy plugin remove io.github.hajimetchi.stl-preview`. The removal action asks for your administrator password to delete the renderer from `/usr/local/bin`, then removes this integration's user-level registrations, style block, and failed-thumbnail cache entries. Other GTK style rules are preserved.
 
 ## Project files
 
 | File | Purpose |
 | --- | --- |
-| `install.sh` | Installs the renderer, registers the thumbnailer and STL file type for your account, and adds the Nautilus thumbnail style. |
-| `uninstall.sh` | Removes the renderer and registrations, then removes only the style block added by this project. |
+| `manifest.json`, `BarWidget.qml`, `Panel.qml`, `ActionButton.qml` | Declare and implement the Quattro widget and its install/remove panel. |
+| `install.sh` | Installs the renderer, registers the thumbnailer and STL file type for your account, and adds the Nautilus thumbnail style. Launched by the widget. |
+| `uninstall.sh` | Removes the renderer and registrations, then removes only the style block added by this project. Launched by the widget. |
 | `bin/stl-thumbnailer` | Python program that reads an STL mesh and renders a transparent PNG thumbnail. |
 | `share/thumbnailers/stl-preview.thumbnailer` | Tells GNOME which command to run to make thumbnails for STL files. |
 | `share/mime/packages/stl-preview.xml` | Registers `.stl` files as STL models with the desktop file-type system. |
