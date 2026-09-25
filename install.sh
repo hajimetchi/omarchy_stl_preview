@@ -20,11 +20,11 @@ import sys
 path = Path(sys.argv[1])
 start = "/* BEGIN stl_preview Nautilus transparent thumbnails */"
 end = "/* END stl_preview Nautilus transparent thumbnails */"
-rule = ".nautilus-window.view .thumbnail {\n  background: none;\n  border: none;\n}"
+rule = ".nautilus-window.view .thumbnail {\n  background: none;\n  border: none;\n  box-shadow: none;\n  padding: 0;\n  margin: 0;\n}"
 block = f"{start}\n{rule}\n{end}"
 legacy_rules = [
-    ".nautilus-window.view .thumbnail {\n  background: none;\n  border: none;\n  box-shadow: none;\n  padding: 0;\n  margin: 0;\n}\n",
     ".nautilus-window.view .thumbnail {\n  background: none;\n}\n",
+    ".nautilus-window.view .thumbnail {\n  background: none;\n  border: none;\n}\n",
     rule + "\n",
 ]
 path.parent.mkdir(parents=True, exist_ok=True)

@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Effects
 import qs.Commons
 import qs.Ui
 
@@ -58,10 +57,10 @@ BarWidget {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: ""
-    labelVisible: false
+    text: icon.status === Image.Ready ? "" : "stl"
+    labelVisible: icon.status !== Image.Ready
     hasVisualContent: true
-    fixedWidth: Style.space(28)
+    fixedWidth: Style.space(30)
     tooltipText: "Manage STL previews"
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.LeftButton) root.toggle()
@@ -70,15 +69,10 @@ BarWidget {
     Image {
       id: icon
       anchors.centerIn: parent
-      width: Style.space(18)
+      width: Style.space(20)
       height: width
       source: Qt.resolvedUrl("icons/xyz.svg")
-      sourceSize: Qt.size(48, 48)
-      layer.enabled: true
-      layer.effect: MultiEffect {
-        colorization: 1
-        colorizationColor: button.foreground
-      }
+      sourceSize: Qt.size(64, 64)
     }
   }
 }
