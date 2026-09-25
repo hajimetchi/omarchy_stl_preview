@@ -11,13 +11,13 @@ ownership_record="/var/lib/stl-preview/stl-thumbnailer.sha256"
 # that this installer installed the unchanged executable there.
 if sudo test -e "$thumbnailer_bin"; then
   if ! sudo test -f "$ownership_record"; then
-    printf 'Refusing to replace %s: it exists without this plugin\'s ownership record.\n' "$thumbnailer_bin" >&2
+    printf 'Refusing to replace %s: it exists without the plugin ownership record.\n' "$thumbnailer_bin" >&2
     exit 1
   fi
   installed_hash="$(sudo sha256sum "$thumbnailer_bin" | awk '{print $1}')"
   recorded_hash="$(sudo cat "$ownership_record")"
   if [[ "$installed_hash" != "$recorded_hash" ]]; then
-    printf 'Refusing to replace %s: its contents no longer match this plugin\'s ownership record.\n' "$thumbnailer_bin" >&2
+    printf 'Refusing to replace %s: its contents no longer match the plugin ownership record.\n' "$thumbnailer_bin" >&2
     exit 1
   fi
 elif sudo test -e "$ownership_record"; then

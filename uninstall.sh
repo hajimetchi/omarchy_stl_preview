@@ -10,7 +10,7 @@ if sudo test -f "$ownership_record" && sudo test -f "$thumbnailer_bin"; then
   if [[ "$installed_hash" == "$recorded_hash" ]]; then
     sudo rm -- "$thumbnailer_bin" "$ownership_record"
   else
-    printf 'Leaving %s in place: its contents no longer match this plugin\'s ownership record.\n' "$thumbnailer_bin" >&2
+    printf 'Leaving %s in place: its contents no longer match the plugin ownership record.\n' "$thumbnailer_bin" >&2
   fi
 elif sudo test -f "$ownership_record"; then
   printf 'Leaving stale ownership record at %s because %s is missing.\n' "$ownership_record" "$thumbnailer_bin" >&2
