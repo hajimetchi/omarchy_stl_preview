@@ -20,13 +20,13 @@ Install the plugin with:
 omarchy plugin add https://github.com/hajimetchi/omarchy_stl_preview.git --enable
 ```
 
-The 2×2 isometric diamond icon appears in the bar's right section. Hover to see its **Manage STL previews** tooltip, then click it and choose **Install STL previews**. This opens an interactive terminal and runs `install.sh`; the script asks for your administrator password when it installs the renderer under `/usr/local/bin`. The plugin does not run the installer automatically.
+The 2×2 isometric diamond icon appears in the bar's right section. Hover to see its **Manage STL previews** tooltip, then click it and choose **Install STL previews**. This opens an interactive terminal and runs `install.sh`; the script asks for your administrator password when it installs the renderer under `/usr/local/bin`. It records the renderer's checksum in `/var/lib/stl-preview/stl-thumbnailer.sha256`. If the executable already exists without a matching ownership record and checksum, installation stops without replacing it. The plugin does not run the installer automatically.
 
 Restart GNOME Files (close and reopen it, or log out and back in). Browse to a folder containing `.stl` files and use an icon or grid view. If thumbnails are disabled in Files, enable them in Files preferences. The first preview may take a moment to appear.
 
 ## Remove
 
-Use **Remove STL previews** in the widget before removing the plugin with `omarchy plugin remove io.github.hajimetchi.stl-preview`. The removal action asks for your administrator password to delete the renderer from `/usr/local/bin`, then removes this integration's user-level registrations, style block, and failed-thumbnail cache entries. Other GTK style rules are preserved.
+Use **Remove STL previews** in the widget before removing the plugin with `omarchy plugin remove io.github.hajimetchi.stl-preview`. The removal action asks for your administrator password to delete the renderer from `/usr/local/bin` only when its checksum matches this plugin's ownership record. If the executable has changed, removal leaves it in place. A user-level ownership record tracks the installed registrations and marked style block. Install stops if those destinations already exist without a matching record, or if a managed file or style block has since changed. Removal deletes only unchanged files and style content recorded as plugin-owned; edited or unowned content is left in place. Thumbnail caches are left untouched.
 
 ## Project files
 
