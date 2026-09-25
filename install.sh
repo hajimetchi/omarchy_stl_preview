@@ -20,13 +20,17 @@ import sys
 path = Path(sys.argv[1])
 start = "/* BEGIN stl_preview Nautilus transparent thumbnails */"
 end = "/* END stl_preview Nautilus transparent thumbnails */"
-rule = ".nautilus-window.view .thumbnail {\n  background: none;\n  border: none;\n  box-shadow: none;\n  padding: 0;\n  margin: 0;\n}"
+rule = ".nautilus-window.view .thumbnail {\n  background: none;\n}"
 block = f"{start}\n{rule}\n{end}"
-legacy = rule + "\n"
+legacy_rules = [
+    ".nautilus-window.view .thumbnail {\n  background: none;\n  border: none;\n  box-shadow: none;\n  padding: 0;\n  margin: 0;\n}\n",
+    rule + "\n",
+]
 path.parent.mkdir(parents=True, exist_ok=True)
 text = path.read_text() if path.exists() else ""
 # Migrate the exact unmarked rule previously added by this installer workflow.
-text = text.replace(legacy, "")
+for legacy in legacy_rules:
+    text = text.replace(legacy, "")
 if start in text and end in text:
     before, rest = text.split(start, 1)
     _, after = rest.split(end, 1)
@@ -40,6 +44,6 @@ command -v update-desktop-database >/dev/null && update-desktop-database "$data_
 rm -f "$cache_home/thumbnails/fail/gnome-thumbnail-factory/"*.png
 printf 'Installed STL preview support:\n'
 printf '  - Installed the renderer and registered the thumbnailer and STL file type.\n'
-printf '  - Added the Nautilus transparent-thumbnail style.\n'
+printf '  - Made Nautilus thumbnail backgrounds transparent.\n'
 printf '  - Cleared failed-thumbnail cache entries so previews can be regenerated.\n'
 printf 'Restart Nautilus to load the changes.\n'
