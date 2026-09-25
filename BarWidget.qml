@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import qs.Commons
 import qs.Ui
 
@@ -69,10 +70,15 @@ BarWidget {
     Image {
       id: icon
       anchors.centerIn: parent
-      width: Style.space(20)
+      width: Style.space(17)
       height: width
       source: Qt.resolvedUrl("icons/xyz.svg")
       sourceSize: Qt.size(64, 64)
+      layer.enabled: true
+      layer.effect: MultiEffect {
+        colorization: 1
+        colorizationColor: button.foreground
+      }
     }
   }
 }
