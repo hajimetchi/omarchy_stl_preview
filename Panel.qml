@@ -8,8 +8,8 @@ import qs.Ui
 Panel {
   id: root
 
-  moduleName: "io.github.hajimetchi.stl-preview"
-  ipcTarget: "io.github.hajimetchi.stl-preview"
+  moduleName: "hajimetchi.files.stl"
+  ipcTarget: "hajimetchi.files.stl"
   manageIpc: false
 
   property var anchorItem: null

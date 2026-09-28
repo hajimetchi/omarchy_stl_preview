@@ -16,7 +16,7 @@ try:
     doc = json.loads(Path(sys.argv[1]).read_text())
     def visit(obj):
         if isinstance(obj, dict):
-            if obj.get("id") == "io.github.hajimetchi.stl-preview":
+            if obj.get("id") == "hajimetchi.files.stl":
                 return obj.get("maxInputMiB", 16)
             for child in obj.values():
                 found = visit(child)

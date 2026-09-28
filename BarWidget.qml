@@ -6,7 +6,7 @@ import qs.Ui
 BarWidget {
   id: root
 
-  moduleName: "io.github.hajimetchi.stl-preview"
+  moduleName: "hajimetchi.files.stl"
 
   readonly property bool opened: panelLoader.item
     ? panelLoader.item.opened === true
