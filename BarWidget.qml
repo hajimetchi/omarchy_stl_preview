@@ -34,14 +34,26 @@ BarWidget {
   function injectPanel() {
     if (!panelLoader.item) return
     panelLoader.item.bar = root.bar
+    panelLoader.item.settings = root.settings
     panelLoader.item.anchorItem = button
     panelLoader.item.hostWidget = root
+  }
+
+  function updatePluginSetting(name, value) {
+    var next = { id: root.moduleName }
+    for (var key in root.settings) if (key !== "id") next[key] = root.settings[key]
+    next[name] = value
+    root.settings = next
+    if (panelLoader.item) panelLoader.item.settings = next
+    if (root.bar && root.bar.shell && typeof root.bar.shell.updateEntryInline === "function")
+      root.bar.shell.updateEntryInline(root.moduleName, next)
   }
 
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 
   onBarChanged: injectPanel()
+  onSettingsChanged: injectPanel()
 
   Loader {
     id: panelLoader
@@ -58,11 +70,11 @@ BarWidget {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: icon.status === Image.Ready ? "" : "stl"
+    text: icon.status === Image.Ready ? "" : ".stl"
     labelVisible: icon.status !== Image.Ready
     hasVisualContent: true
     fixedWidth: Style.space(30)
-    tooltipText: "Manage STL previews"
+    tooltipText: "Manage .stl previews"
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.LeftButton) root.toggle()
     }

@@ -4,6 +4,15 @@ data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
 config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
 thumbnailer_bin="/usr/local/bin/stl-thumbnailer"
 ownership_record="/var/lib/stl-preview/stl-thumbnailer.sha256"
+delete_stats="no"
+if [[ -t 0 ]]; then
+  read -r -p "Delete the thumbnail counter data? [y/N] " answer || true
+  if [[ "$answer" =~ ^[Yy]([Ee][Ss])?$ ]]; then
+    delete_stats="yes"
+  fi
+else
+  printf 'No interactive terminal; keeping thumbnail counter data.\n'
+fi
 if sudo test -f "$ownership_record" && sudo test -f "$thumbnailer_bin"; then
   installed_hash="$(sudo sha256sum "$thumbnailer_bin" | awk '{print $1}')"
   recorded_hash="$(sudo cat "$ownership_record")"
@@ -15,11 +24,25 @@ if sudo test -f "$ownership_record" && sudo test -f "$thumbnailer_bin"; then
 elif sudo test -f "$ownership_record"; then
   printf 'Leaving stale ownership record at %s because %s is missing.\n' "$ownership_record" "$thumbnailer_bin" >&2
 fi
-python3 - "$data_home" "$config_home" <<'PY'
+python3 - "$data_home" "$config_home" "$delete_stats" <<'PY'
 import hashlib, json, sys
+import fcntl
 from pathlib import Path
-data, config = map(Path, sys.argv[1:])
+data, config = map(Path, sys.argv[1:3])
+delete_stats = sys.argv[3] == "yes"
 record = data / "stl-preview/ownership.json"
+stats = data / "stl-preview/thumbnail-count.json"
+stats_lock = data / "stl-preview/thumbnail-count.lock"
+if delete_stats and stats.exists():
+    # Keep the lock file itself so concurrent thumbnail jobs never lock
+    # different inodes while the statistic is removed.
+    with stats_lock.open("a+") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        stats.unlink(missing_ok=True)
+        fcntl.flock(lock, fcntl.LOCK_UN)
+    print(f"Removed thumbnail statistics file: {stats}")
+elif stats.exists():
+    print(f"Kept thumbnail statistics file: {stats}")
 if not record.exists():
     print(f"No user ownership record at {record}; leaving user files untouched.")
     raise SystemExit

@@ -7,6 +7,33 @@ config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
 user_record="$data_home/stl-preview/ownership.json"
 thumbnailer_bin="/usr/local/bin/stl-thumbnailer"
 ownership_record="/var/lib/stl-preview/stl-thumbnailer.sha256"
+max_input_mib="$(python3 - "$config_home/omarchy/shell.json" <<'PY'
+import json, sys
+from pathlib import Path
+allowed = (8, 16, 32, 64, 128)
+value = 16
+try:
+    doc = json.loads(Path(sys.argv[1]).read_text())
+    def visit(obj):
+        if isinstance(obj, dict):
+            if obj.get("id") == "io.github.hajimetchi.stl-preview":
+                return obj.get("maxInputMiB", 16)
+            for child in obj.values():
+                found = visit(child)
+                if found is not None: return found
+        elif isinstance(obj, list):
+            for child in obj:
+                found = visit(child)
+                if found is not None: return found
+        return None
+    value = visit(doc) or 16
+except (OSError, ValueError, TypeError):
+    pass
+try: value = int(value)
+except (ValueError, TypeError): value = 16
+print(value if value in allowed else 16)
+PY
+)"
 # Refuse to claim an existing system path unless our root-owned record proves
 # that this installer installed the unchanged executable there.
 if sudo test -e "$thumbnailer_bin"; then
@@ -58,6 +85,26 @@ else:
         if digest != state["css_block"]:
             raise SystemExit(f"Refusing to change CSS; managed block was edited: {css}")
 PY
+# Preserve the first installation date across plugin updates. For older
+# ownership records, recover it from the existing renderer's file date.
+installed_at="$(python3 - "$user_record" "$thumbnailer_bin" <<'PY'
+import datetime, json, sys
+from pathlib import Path
+record, binary = map(Path, sys.argv[1:])
+if record.is_file():
+    try:
+        saved = json.loads(record.read_text()).get("installed_at")
+        if saved:
+            print(saved)
+            raise SystemExit
+    except (OSError, ValueError, TypeError, AttributeError):
+        pass
+try:
+    print(datetime.datetime.fromtimestamp(binary.stat().st_mtime).astimezone().date().isoformat())
+except OSError:
+    print(datetime.datetime.now().astimezone().date().isoformat())
+PY
+)"
 mkdir -p "$data_home/thumbnailers" "$data_home/mime/packages"
 # GNOME runs thumbnailers in a bubblewrap sandbox that exposes /usr, not the
 # user's home directory. Install the executable under /usr/local/bin so it is
@@ -67,7 +114,7 @@ sudo install -d -m 755 "$(dirname "$ownership_record")"
 printf '%s\n' "$(sha256sum "$thumbnailer_bin" | awk '{print $1}')" | sudo tee "$ownership_record" >/dev/null
 install -m 644 "$root/share/thumbnailers/stl-preview.thumbnailer" "$data_home/thumbnailers/stl-preview.thumbnailer"
 install -m 644 "$root/share/mime/packages/stl-preview.xml" "$data_home/mime/packages/stl-preview.xml"
-sed -i "s|^TryExec=.*|TryExec=$thumbnailer_bin|; s|^Exec=.*|Exec=$thumbnailer_bin %i %o %s|" "$data_home/thumbnailers/stl-preview.thumbnailer"
+sed -i "s|^TryExec=.*|TryExec=$thumbnailer_bin|; s|^Exec=.*|Exec=$thumbnailer_bin %i %o %s $((max_input_mib * 1024 * 1024))|" "$data_home/thumbnailers/stl-preview.thumbnailer"
 python3 - "$config_home/gtk-4.0/gtk.css" <<'PY'
 from pathlib import Path
 import sys
@@ -90,18 +137,23 @@ else:
 path.write_text(text)
 PY
 command -v update-mime-database >/dev/null && update-mime-database "$data_home/mime" || true
-python3 - "$data_home" "$config_home" "$user_record" <<'PY'
+python3 - "$data_home" "$config_home" "$user_record" "$installed_at" <<'PY'
 import hashlib, json, sys
 from pathlib import Path
-data, config, record = map(Path, sys.argv[1:])
+data, config, record = map(Path, sys.argv[1:4])
+installed_at = sys.argv[4]
 files = [data / "thumbnailers/stl-preview.thumbnailer", data / "mime/packages/stl-preview.xml"]
 css = config / "gtk-4.0/gtk.css"
 text = css.read_text()
 start, end = "/* BEGIN stl_preview Nautilus transparent thumbnails */", "/* END stl_preview Nautilus transparent thumbnails */"
 block = start + text.split(start, 1)[1].split(end, 1)[0] + end
 record.parent.mkdir(parents=True, exist_ok=True)
-record.write_text(json.dumps({"files": {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}, "css_block": hashlib.sha256(block.encode()).hexdigest()}, indent=2) + "\n")
+record.write_text(json.dumps({"files": {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}, "css_block": hashlib.sha256(block.encode()).hexdigest(), "installed_at": installed_at}, indent=2) + "\n")
+
 PY
+if ! python3 "$root/thumbnail-counter.py" --initialize; then
+  printf 'Could not initialize the STL thumbnail counter; previews will still work.\n' >&2
+fi
 printf 'Installed STL preview support:\n'
 printf '  - Installed the renderer and registered the thumbnailer and STL file type.\n'
 printf '  - Removed Nautilus thumbnail backgrounds and borders.\n'
